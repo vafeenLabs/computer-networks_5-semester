@@ -1,0 +1,143 @@
+Router# show access-lists 10
+Router# show access-lists
+Router(config-if)#do show ip interface FastEthernet0/0
+
+Router(config)#interface f0/0
+Router(config-if)#ip access-group 101 in
+Router(config)# no access-list 10
+Router(config-if)# no ip access-group 10 in
+
+
+Router(config)# ip access-list extended 101
+Router(config-ext-nacl)# no deny ip any any
+
+wr mem
+### Ограничение пакетов ICMP:
+
+```
+Router(config)# access-list 100 permit icmp any any echo-reply
+Router(config)# access-list 100 permit icmp any any echo
+```
+
+Этот список разрешает только ICMP-пакеты echo-request и echo-reply.
+
+### Ограничение пакетов TCP (HTTP):
+
+```
+Router(config)# access-list 101 permit tcp any any eq 80
+```
+Этот список разрешает только TCP-пакеты с портом назначения 80 (HTTP).
+```от к
+Router(config)# access-list 101 permit tcp 192.168.1.0 0.0.0.255 10.0.0.0 0.255.255.255 eq 80
+
+```
+
+
+
+### Ограничение пакетов TCP (SMTP):
+
+```
+Router(config)# access-list 102 permit tcp any any eq 25
+```
+
+Этот список разрешает только TCP-пакеты с портом назначения 25 (SMTP).
+
+### Ограничение пакетов UDP (DNS):
+
+```
+Router(config)# access-list 103 permit udp any any eq 53
+```
+
+Этот список разрешает только UDP-пакеты с портом назначения 53 (DNS).
+
+### Ограничение пакетов TCP (POP3):
+
+```
+Router(config)# access-list 104 permit tcp any any eq 110
+```
+
+Этот список разрешает только TCP-пакеты с портом назначения 110 (POP3).
+
+применение их к соответствующим интерфейсам:
+
+```
+Router(config)# interface fa0/0
+Router(config-if)# ip access-group 100 in
+
+Router(config)# interface fa0/0
+Router(config-if)# ip access-group 101 in
+
+Router(config)# interface fa0/0
+Router(config-if)# ip access-group 102 in
+
+Router(config)# interface fa0/0
+Router(config-if)# ip access-group 103 in
+
+Router(config)# interface fa0/0
+Router(config-if)# ip access-group 104 in
+```
+Ограничение серверов
+```````````````````````
+Router(config)#access-list 101 permit tcp any any eq www
+Router(config)#access-list 101 permit tcp any any eq smtp
+Router(config)#access-list 101 permit tcp any any eq pop3
+Router(config)#access-list 101 permit udp any any eq domain
+Router(config)#access-list 101 permit tcp any any established
+
+```````````````````````
+
+
+access-list 1 deny host 192.168.10.1
+access-list 1 permit 192.168.10.1 0.0.0.255
+
+access-list 1 permit any
+
+access-list 102 permit ip any any
+
+порт источника/порт назначения
+access-list 112 permit udp any any eq domain
+access-list 112 permit udp any eq domain any
+access-list 112 permit tcp any any eq domain
+access-list 112 permit tcp any eq domain any
+
+access-list 102 permit udp any any eq rip
+
+access-list 102 permit ospf any any
+
+
+
+////////////////////////////////////////////////////////
+
+TCP (Transmission Control Protocol):
+	Особенности:
+		Ориентирован на соединение: Устанавливает виртуальное соединение между 
+		отправителем и получателем перед началом передачи данных.
+	Надежность: Гарантирует доставку данных в правильной последовательности 
+	 и обнаруживает потерянные пакеты, предпринимая попытки их повторной передачи.
+	Управление потоком: Регулирует скорость передачи данных для предотвращения 
+	 переполнения буфера на стороне получателя.
+		Ошибки и повторная передача: Использует механизмы обнаружения ошибок 
+		и повторной передачи для обеспечения надежной доставки данных.
+	Примеры применения:
+		Передача файлов по протоколу FTP.
+		Веб-просмотры (HTTP).
+		Почтовые протоколы, такие как SMTP (Simple Mail Transfer Protocol).
+
+UDP (User Datagram Protocol):
+	Особенности:
+		Без соединения: Не устанавливает виртуальное соединение перед передачей данных.
+		Ненадежность: Не гарантирует доставку данных или правильную последовательность. 
+		 Отправленные данные могут потеряться или прийти в неправильном порядке.
+		Отсутствие управления потоком: Не регулирует скорость передачи данных, 
+		 что может привести к переполнению буфера.
+		Минимальное оверхед: Имеет меньший объем накладных расходов, чем TCP, 
+		 что делает его более подходящим для реального времени и приложений, 
+		 где небольшая задержка более важна, чем надежность.
+	Примеры применения:
+		Видеопередача в реальном времени.
+		Игровые приложения, где важна низкая задержка.
+		DNS (Domain Name System) для разрешения доменных имен в IP-адреса.
+
+
+
+
